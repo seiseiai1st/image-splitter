@@ -1,5 +1,5 @@
 /**
- * horizontal4-mode.js - 水平4分割モード（画像を横方向に4等分）
+ * horizontal4-mode.js - 垂直4分割モード（画像を縦方向に4等分）
  */
 
 export class Horizontal4Mode {
@@ -22,28 +22,28 @@ export class Horizontal4Mode {
     _updateInfo() {
         const imgSize = this.canvasManager.getImageSize();
         if (imgSize.width > 0) {
-            const pieceW = Math.floor(imgSize.width / 4);
-            this.pieceSizeEl.textContent = `${pieceW} × ${imgSize.height} px`;
+            const pieceH = Math.floor(imgSize.height / 4);
+            this.pieceSizeEl.textContent = `${imgSize.width} × ${pieceH} px`;
         }
         this.canvasManager.draw();
     }
 
     _drawLines(ctx, w, h, scale) {
         const imgSize = this.canvasManager.getImageSize();
-        const pieceW = imgSize.width / 4;
+        const pieceH = imgSize.height / 4;
 
         ctx.save();
 
-        // 分割線を描画
+        // 水平分割線を描画
         ctx.strokeStyle = 'rgba(0, 212, 170, 0.8)';
         ctx.lineWidth = 2;
         ctx.setLineDash([8, 4]);
 
         for (let i = 1; i < 4; i++) {
-            const x = pieceW * i * scale;
+            const y = pieceH * i * scale;
             ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, h);
+            ctx.moveTo(0, y);
+            ctx.lineTo(w, y);
             ctx.stroke();
         }
 
@@ -56,8 +56,8 @@ export class Horizontal4Mode {
         ctx.textBaseline = 'middle';
 
         for (let i = 0; i < 4; i++) {
-            const cx = (pieceW * i + pieceW / 2) * scale;
-            const cy = h / 2;
+            const cx = w / 2;
+            const cy = (pieceH * i + pieceH / 2) * scale;
 
             ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
             ctx.beginPath();
@@ -76,15 +76,15 @@ export class Horizontal4Mode {
      */
     getRegions() {
         const imgSize = this.canvasManager.getImageSize();
-        const pieceW = imgSize.width / 4;
+        const pieceH = imgSize.height / 4;
 
         const regions = [];
         for (let i = 0; i < 4; i++) {
             regions.push({
-                x: Math.round(pieceW * i),
-                y: 0,
-                w: Math.round(pieceW),
-                h: imgSize.height
+                x: 0,
+                y: Math.round(pieceH * i),
+                w: imgSize.width,
+                h: Math.round(pieceH)
             });
         }
         return regions;
