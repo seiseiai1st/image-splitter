@@ -156,6 +156,15 @@
     margin-bottom: 10px;
 }
 
+.aspect-hint {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--accent-primary);
+    opacity: 0.8;
+    letter-spacing: 0.02em;
+}
+
 .preview-img {
     width: 100%;
     height: 100%;
