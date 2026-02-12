@@ -9,6 +9,7 @@ import { GridMode } from './modules/grid-mode.js';
 import { SplitlineMode } from './modules/splitline-mode.js';
 import { CropMode } from './modules/crop-mode.js';
 import { FixedSizeMode } from './modules/fixedsize-mode.js';
+import { Horizontal4Mode } from './modules/horizontal4-mode.js';
 import { Exporter } from './modules/exporter.js';
 
 // ===== 状態 =====
@@ -31,6 +32,7 @@ const settingsPanels = {
     splitline: document.getElementById('splitline-settings'),
     crop: document.getElementById('crop-settings'),
     fixedsize: document.getElementById('fixedsize-settings'),
+    horizontal4: document.getElementById('horizontal4-settings'),
 };
 
 // ===== マネージャー初期化 =====
@@ -39,6 +41,7 @@ const gridMode = new GridMode(canvasManager);
 const splitlineMode = new SplitlineMode(canvasManager);
 const cropMode = new CropMode(canvasManager);
 const fixedSizeMode = new FixedSizeMode(canvasManager);
+const horizontal4Mode = new Horizontal4Mode(canvasManager);
 const exporter = new Exporter();
 
 const modes = {
@@ -46,6 +49,7 @@ const modes = {
     splitline: splitlineMode,
     crop: cropMode,
     fixedsize: fixedSizeMode,
+    horizontal4: horizontal4Mode,
 };
 
 // ===== 画像アップロード =====

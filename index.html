@@ -99,6 +99,15 @@
           </svg>
           固定サイズ
         </button>
+        <button class="mode-tab" data-mode="horizontal4">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="4" height="18" rx="1" />
+            <rect x="7" y="3" width="4" height="18" rx="1" />
+            <rect x="12" y="3" width="4" height="18" rx="1" />
+            <rect x="17" y="3" width="4" height="18" rx="1" />
+          </svg>
+          水平4分割
+        </button>
       </div>
 
       <!-- エディタ本体 -->
@@ -200,6 +209,16 @@
             <div class="split-info" id="fixedsize-info">
               <p>分割数: <strong id="fixedsize-total">-</strong>枚</p>
               <p>各画像サイズ: <strong id="fixedsize-piece-size">200 x 200 px</strong></p>
+            </div>
+          </div>
+
+          <!-- 水平4分割モード設定 -->
+          <div id="horizontal4-settings" class="settings-content hidden">
+            <h3>水平4分割</h3>
+            <p class="mode-description">画像を横方向に4等分します。X投稿用の分割に最適です。</p>
+            <div class="split-info" id="h4-info">
+              <p>分割数: <strong>4</strong>枚</p>
+              <p>各画像サイズ: <strong id="h4-piece-size">-</strong></p>
             </div>
           </div>
 
