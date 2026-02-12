@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>X Trick Image Maker - X投稿用トリック画像メーカー</title>
+    <meta name="description" content="Xの4画像投稿で1枚に見えるトリック画像を簡単に作成。サムネイルでは1枚、クリックするとダミー画像が出現。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./x-trick.css" />
+</head>
+
+<body>
+    <!-- ヘッダー -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4l11.733 16h4.267l-11.733 -16h-4.267z" />
+                    <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
+                </svg>
+                <h1>X Trick Image Maker</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="./index.html" class="nav-link">画像分割ツール</a>
+                <a href="./x-trick.html" class="nav-link active">X画像メーカー</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <!-- 説明セクション -->
+        <div class="intro-section">
+            <h2>X投稿用トリック画像を作成</h2>
+            <p>サムネイルでは1枚の画像に見えるのに、クリックするとダミー画像が出現する4枚の画像セットを生成します。</p>
+        </div>
+
+        <!-- 画像アップロードエリア -->
+        <div class="upload-grid">
+            <!-- メイン画像 -->
+            <div class="upload-card main-card">
+                <div class="card-label">
+                    <span class="label-badge main-badge">メイン</span>
+                    主要画像
+                </div>
+                <div class="upload-zone" id="main-upload-zone" data-target="main">
+                    <div class="upload-zone-content" id="main-upload-content">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <path d="M21 15l-5-5L5 21" />
+                        </svg>
+                        <p>ここにドラッグ＆ドロップ</p>
+                        <button class="btn btn-primary btn-sm"
+                            onclick="document.getElementById('main-input').click()">選択</button>
+                    </div>
+                    <img id="main-preview" class="preview-img hidden" />
+                    <button id="main-clear" class="clear-btn hidden" title="削除">✕</button>
+                </div>
+                <input type="file" id="main-input" accept="image/*" hidden />
+            </div>
+
+            <!-- ダミー画像A -->
+            <div class="upload-card">
+                <div class="card-label">
+                    <span class="label-badge dummy-a-badge">A</span>
+                    ダミー画像（上）
+                </div>
+                <div class="upload-zone" id="dummyA-upload-zone" data-target="dummyA">
+                    <div class="upload-zone-content" id="dummyA-upload-content">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                        <p>上に表示される画像</p>
+                        <button class="btn btn-secondary btn-sm"
+                            onclick="document.getElementById('dummyA-input').click()">選択</button>
+                    </div>
+                    <img id="dummyA-preview" class="preview-img hidden" />
+                    <button id="dummyA-clear" class="clear-btn hidden" title="削除">✕</button>
+                </div>
+                <input type="file" id="dummyA-input" accept="image/*" hidden />
+            </div>
+
+            <!-- ダミー画像B -->
+            <div class="upload-card">
+                <div class="card-label">
+                    <span class="label-badge dummy-b-badge">B</span>
+                    ダミー画像（下）
+                </div>
+                <div class="upload-zone" id="dummyB-upload-zone" data-target="dummyB">
+                    <div class="upload-zone-content" id="dummyB-upload-content">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                        <p>下に表示される画像</p>
+                        <button class="btn btn-secondary btn-sm"
+                            onclick="document.getElementById('dummyB-input').click()">選択</button>
+                    </div>
+                    <img id="dummyB-preview" class="preview-img hidden" />
+                    <button id="dummyB-clear" class="clear-btn hidden" title="削除">✕</button>
+                </div>
+                <input type="file" id="dummyB-input" accept="image/*" hidden />
+            </div>
+        </div>
+
+        <!-- 設定パネル -->
+        <div id="settings-section" class="settings-section hidden">
+            <div class="settings-row">
+                <div class="setting-card">
+                    <h3>ダミー画像の高さ比率</h3>
+                    <p class="setting-desc">サムネイルでメイン画像がちょうど中央に来るように調整してください。</p>
+                    <div class="setting-group">
+                        <label>ダミーA（上）の高さ比率</label>
+                        <input type="range" id="ratio-a" min="10" max="200" value="80" />
+                        <span id="ratio-a-value" class="range-value">80%</span>
+                    </div>
+                    <div class="setting-group">
+                        <label>ダミーB（下）の高さ比率</label>
+                        <input type="range" id="ratio-b" min="10" max="200" value="80" />
+                        <span id="ratio-b-value" class="range-value">80%</span>
+                    </div>
+                </div>
+
+                <div class="setting-card">
+                    <h3>出力設定</h3>
+                    <div class="setting-group">
+                        <label>出力形式</label>
+                        <select id="output-format">
+                            <option value="png">PNG（高品質）</option>
+                            <option value="jpeg">JPEG</option>
+                            <option value="webp">WebP</option>
+                        </select>
+                    </div>
+                    <div class="setting-group quality-setting" id="quality-setting" style="display:none;">
+                        <label>品質</label>
+                        <input type="range" id="output-quality" min="50" max="100" value="92" />
+                        <span id="quality-value" class="range-value">92%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- プレビュー -->
+            <div class="preview-section">
+                <h3>プレビュー</h3>
+                <div class="preview-tabs">
+                    <button class="preview-tab active" data-view="thumbnail">サムネイル表示（Xのタイムライン）</button>
+                    <button class="preview-tab" data-view="individual">個別表示（クリック後）</button>
+                </div>
+
+                <div id="thumbnail-preview" class="thumbnail-preview">
+                    <div class="x-post-mock">
+                        <div class="x-post-header">
+                            <div class="x-avatar"></div>
+                            <div class="x-user-info">
+                                <span class="x-name">ユーザー名</span>
+                                <span class="x-handle">@username</span>
+                            </div>
+                        </div>
+                        <div class="x-images-grid">
+                            <canvas id="thumb-1" class="x-thumb"></canvas>
+                            <canvas id="thumb-2" class="x-thumb"></canvas>
+                            <canvas id="thumb-3" class="x-thumb"></canvas>
+                            <canvas id="thumb-4" class="x-thumb"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="individual-preview" class="individual-preview hidden">
+                    <div class="individual-grid">
+                        <div class="individual-item">
+                            <span class="item-label">画像 1</span>
+                            <canvas id="full-1" class="full-canvas"></canvas>
+                        </div>
+                        <div class="individual-item">
+                            <span class="item-label">画像 2</span>
+                            <canvas id="full-2" class="full-canvas"></canvas>
+                        </div>
+                        <div class="individual-item">
+                            <span class="item-label">画像 3</span>
+                            <canvas id="full-3" class="full-canvas"></canvas>
+                        </div>
+                        <div class="individual-item">
+                            <span class="item-label">画像 4</span>
+                            <canvas id="full-4" class="full-canvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- アクションボタン -->
+            <div class="action-section">
+                <button id="generate-btn" class="btn btn-primary btn-lg">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                    画像を生成
+                </button>
+                <button id="download-zip-btn" class="btn btn-success btn-lg hidden">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    ZIPでダウンロード
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- プログレスオーバーレイ -->
+    <div id="progress-overlay" class="progress-overlay hidden">
+        <div class="progress-content">
+            <div class="spinner"></div>
+            <p id="progress-text">生成中...</p>
+        </div>
+    </div>
+
+    <script type="module" src="./x-trick.js"></script>
+</body>
+
+</html>

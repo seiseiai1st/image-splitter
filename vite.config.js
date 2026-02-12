@@ -1,11 +1,17 @@
 import { defineConfig } from 'vite';
+import { resolve } from 'path';
 
 export default defineConfig({
     // GitHub Pagesのリポジトリ名に合わせてbaseを設定
-    // リポジトリ名が "image-splitter" の場合:
     base: '/image-splitter/',
     build: {
         outDir: 'dist',
         assetsInlineLimit: 0,
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, 'index.html'),
+                'x-trick': resolve(__dirname, 'x-trick.html'),
+            },
+        },
     },
 });
