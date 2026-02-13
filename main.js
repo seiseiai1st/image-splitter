@@ -13,7 +13,7 @@ import { Horizontal4Mode } from './modules/horizontal4-mode.js';
 import { Exporter } from './modules/exporter.js';
 
 // ===== 状態 =====
-let currentMode = 'grid';
+let currentMode = 'horizontal4';
 let imageLoaded = false;
 
 // ===== DOM要素 =====
