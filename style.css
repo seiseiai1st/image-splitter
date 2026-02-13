@@ -642,6 +642,26 @@ input[type="range"]::-webkit-slider-thumb {
     color: var(--accent-primary);
 }
 
+/* Crop Info */
+.crop-info-text {
+    color: rgba(255, 200, 0, 0.9) !important;
+    font-size: 0.8rem !important;
+    margin-top: 4px;
+}
+
+.crop-reset-btn {
+    margin-top: 10px;
+    width: 100%;
+    justify-content: center;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+}
+
+.btn-small {
+    padding: 6px 14px !important;
+    font-size: 0.8rem !important;
+}
+
 /* Mode Description */
 .mode-description {
     color: var(--text-secondary);

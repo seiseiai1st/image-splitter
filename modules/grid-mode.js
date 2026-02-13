@@ -1,6 +1,9 @@
 /**
  * grid-mode.js - グリッドモード（行×列で均等分割）
+ * クロップハンドル対応
  */
+
+import { CropHandles } from './crop-handles.js';
 
 export class GridMode {
     constructor(canvasManager) {
@@ -12,6 +15,12 @@ export class GridMode {
         this.gapValue = document.getElementById('grid-gap-value');
         this.totalEl = document.getElementById('grid-total');
         this.pieceSizeEl = document.getElementById('grid-piece-size');
+        this.cropInfoEl = document.getElementById('grid-crop-info');
+
+        // クロップハンドル
+        this.cropHandles = new CropHandles(canvasManager, (cropRect) => {
+            this._update();
+        });
 
         this._bindEvents();
     }
@@ -24,7 +33,7 @@ export class GridMode {
         this.gapInput.addEventListener('input', update);
 
         // ステッパーボタン
-        document.querySelectorAll('.stepper-btn').forEach(btn => {
+        document.querySelectorAll('#grid-settings .stepper-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const target = document.getElementById(btn.dataset.target);
                 if (!target) return;
@@ -37,6 +46,15 @@ export class GridMode {
                 update();
             });
         });
+
+        // クロップリセットボタン
+        const resetBtn = document.getElementById('grid-crop-reset');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                this.cropHandles.reset();
+                this._update();
+            });
+        }
     }
 
     _update() {
@@ -47,11 +65,26 @@ export class GridMode {
         const rows = parseInt(this.rowsInput.value) || 1;
         this.totalEl.textContent = cols * rows;
 
-        const imgSize = this.canvasManager.getImageSize();
-        if (imgSize.width > 0) {
-            const pw = Math.floor((imgSize.width - gap * (cols - 1)) / cols);
-            const ph = Math.floor((imgSize.height - gap * (rows - 1)) / rows);
-            this.pieceSizeEl.textContent = `${pw} x ${ph} px`;
+        const crop = this.cropHandles.getCropRect();
+        const cw = crop.w;
+        const ch = crop.h;
+
+        if (cw > 0 && ch > 0) {
+            const pw = Math.floor((cw - gap * (cols - 1)) / cols);
+            const ph = Math.floor((ch - gap * (rows - 1)) / rows);
+            this.pieceSizeEl.textContent = `${pw} × ${ph} px`;
+        }
+
+        // クロップ情報表示
+        if (this.cropInfoEl) {
+            const imgSize = this.canvasManager.getImageSize();
+            if (this.cropHandles.cropTop > 0 || this.cropHandles.cropBottom > 0 ||
+                this.cropHandles.cropLeft > 0 || this.cropHandles.cropRight > 0) {
+                this.cropInfoEl.textContent = `クロップ: ${crop.w} × ${crop.h} px (元: ${imgSize.width} × ${imgSize.height})`;
+                this.cropInfoEl.style.display = '';
+            } else {
+                this.cropInfoEl.style.display = 'none';
+            }
         }
 
         this.canvasManager.draw();
@@ -60,12 +93,14 @@ export class GridMode {
     activate() {
         this.canvasManager.setDrawCallback((ctx, w, h, scale) => {
             this._drawGrid(ctx, w, h, scale);
+            this.cropHandles.draw(ctx, w, h);
         });
+        this.cropHandles.enable();
         this._update();
     }
 
     deactivate() {
-        // noop
+        this.cropHandles.disable();
     }
 
     _drawGrid(ctx, w, h, scale) {
@@ -73,9 +108,15 @@ export class GridMode {
         const rows = parseInt(this.rowsInput.value) || 1;
         const gap = parseInt(this.gapInput.value) || 0;
 
-        const imgSize = this.canvasManager.getImageSize();
-        const cellW = (imgSize.width - gap * (cols - 1)) / cols;
-        const cellH = (imgSize.height - gap * (rows - 1)) / rows;
+        // クロップ範囲内でグリッドを描画
+        const left = w * this.cropHandles.cropLeft;
+        const top = h * this.cropHandles.cropTop;
+        const cropW = w - left - w * this.cropHandles.cropRight;
+        const cropH = h - top - h * this.cropHandles.cropBottom;
+
+        const crop = this.cropHandles.getCropRect();
+        const cellW = (crop.w - gap * (cols - 1)) / cols;
+        const cellH = (crop.h - gap * (rows - 1)) / rows;
 
         ctx.save();
         ctx.strokeStyle = 'rgba(108, 99, 255, 0.8)';
@@ -84,19 +125,19 @@ export class GridMode {
 
         // 垂直線
         for (let c = 1; c < cols; c++) {
-            const x = (cellW * c + gap * (c - 1) + gap / 2) * scale;
+            const x = left + (cellW * c + gap * (c - 1) + gap / 2) * scale;
             ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, h);
+            ctx.moveTo(x, top);
+            ctx.lineTo(x, top + cropH);
             ctx.stroke();
         }
 
         // 水平線
         for (let r = 1; r < rows; r++) {
-            const y = (cellH * r + gap * (r - 1) + gap / 2) * scale;
+            const y = top + (cellH * r + gap * (r - 1) + gap / 2) * scale;
             ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(w, y);
+            ctx.moveTo(left, y);
+            ctx.lineTo(left + cropW, y);
             ctx.stroke();
         }
 
@@ -104,12 +145,12 @@ export class GridMode {
         if (gap > 0) {
             ctx.fillStyle = 'rgba(255, 82, 82, 0.15)';
             for (let c = 1; c < cols; c++) {
-                const x = (cellW * c + gap * (c - 1)) * scale;
-                ctx.fillRect(x, 0, gap * scale, h);
+                const x = left + (cellW * c + gap * (c - 1)) * scale;
+                ctx.fillRect(x, top, gap * scale, cropH);
             }
             for (let r = 1; r < rows; r++) {
-                const y = (cellH * r + gap * (r - 1)) * scale;
-                ctx.fillRect(0, y, w, gap * scale);
+                const y = top + (cellH * r + gap * (r - 1)) * scale;
+                ctx.fillRect(left, y, cropW, gap * scale);
             }
         }
 
@@ -124,8 +165,8 @@ export class GridMode {
         let idx = 1;
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
-                const cx = (cellW * c + gap * c + cellW / 2) * scale;
-                const cy = (cellH * r + gap * r + cellH / 2) * scale;
+                const cx = left + (cellW * c + gap * c + cellW / 2) * scale;
+                const cy = top + (cellH * r + gap * r + cellH / 2) * scale;
 
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
                 ctx.beginPath();
@@ -149,16 +190,16 @@ export class GridMode {
         const rows = parseInt(this.rowsInput.value) || 1;
         const gap = parseInt(this.gapInput.value) || 0;
 
-        const imgSize = this.canvasManager.getImageSize();
-        const cellW = (imgSize.width - gap * (cols - 1)) / cols;
-        const cellH = (imgSize.height - gap * (rows - 1)) / rows;
+        const crop = this.cropHandles.getCropRect();
+        const cellW = (crop.w - gap * (cols - 1)) / cols;
+        const cellH = (crop.h - gap * (rows - 1)) / rows;
 
         const regions = [];
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
                 regions.push({
-                    x: Math.round(cellW * c + gap * c),
-                    y: Math.round(cellH * r + gap * r),
+                    x: Math.round(crop.x + cellW * c + gap * c),
+                    y: Math.round(crop.y + cellH * r + gap * r),
                     w: Math.round(cellW),
                     h: Math.round(cellH)
                 });
