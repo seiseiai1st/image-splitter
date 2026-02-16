@@ -57,19 +57,10 @@ export class WatermarkManager {
         if (!this.state.enabled) return;
 
         ctx.save();
-        ctx.globalAlpha = this.state.opacity;
-
-        const { position, scale, margin, color, text, font } = this.state;
-        const minDim = Math.min(width, height);
-
-        let contentW, contentH;
-        let drawX, drawY;
-
-        // マージン計算
-        const marginPx = minDim * margin;
-
         if (this.state.type === 'image' && this.imageElement) {
-            // 画像モード
+            // 画像モード: globalAlpha を使用
+            ctx.globalAlpha = this.state.opacity;
+
             const aspect = this.imageElement.naturalWidth / this.imageElement.naturalHeight;
 
             // 幅を基準にスケール計算
@@ -78,7 +69,9 @@ export class WatermarkManager {
             contentH = contentW / aspect;
 
         } else {
-            // テキストモード
+            // テキストモード: fillStyle / shadowColor で透明度を指定 (モバイル対策)
+            // globalAlpha は 1.0 のまま維持
+
             // フォントサイズは短辺のスケール割合で決定
             const fontSize = Math.max(10, minDim * scale); // 最小10px
             ctx.font = `bold ${fontSize}px ${font}`;
@@ -111,16 +104,41 @@ export class WatermarkManager {
         if (this.state.type === 'image' && this.imageElement) {
             ctx.drawImage(this.imageElement, drawX, drawY, contentW, contentH);
         } else {
-            ctx.fillStyle = color;
-            // 影をつけて視認性を上げる
-            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            // 色と透明度の変換
+            const rgb = this._hexToRgb(color);
+            const opacity = this.state.opacity;
+
+            if (rgb) {
+                ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
+            } else {
+                // フォールバック (念のため)
+                ctx.globalAlpha = opacity;
+                ctx.fillStyle = color;
+            }
+
+            // 影をつけて視認性を上げる (影も透明度連動)
+            const shadowOpacity = Math.max(0, opacity * 0.5); // 半分の不透明度
+            ctx.shadowColor = `rgba(0,0,0,${shadowOpacity})`;
             ctx.shadowBlur = 4;
             ctx.shadowOffsetX = 2;
             ctx.shadowOffsetY = 2;
 
             ctx.fillText(text, drawX, drawY + (contentH - (minDim * scale)) / 2); // 垂直中央補正
         }
-
         ctx.restore();
+    }
+
+    /**
+     * HEXカラーをRBGオブジェクトに変換
+     * @param {string} hex "#RRGGBB"
+     * @returns {Object|null} {r, g, b}
+     */
+    _hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
     }
 }
