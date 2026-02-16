@@ -108,7 +108,8 @@ const updateOpacity = () => {
     watermarkManager.setState({ opacity: val / 100 });
 };
 wmOpacity.addEventListener('input', updateOpacity);
-wmOpacity.addEventListener('change', updateOpacity); // for mobile
+wmOpacity.addEventListener('change', updateOpacity);
+wmOpacity.addEventListener('touchmove', (e) => { e.stopPropagation(); updateOpacity(); }, { passive: true }); // for mobile robust
 
 // サイズ
 const updateSize = () => {
@@ -117,7 +118,8 @@ const updateSize = () => {
     watermarkManager.setState({ scale: val / 100 });
 };
 wmSize.addEventListener('input', updateSize);
-wmSize.addEventListener('change', updateSize); // for mobile
+wmSize.addEventListener('change', updateSize);
+wmSize.addEventListener('touchmove', (e) => { e.stopPropagation(); updateSize(); }, { passive: true }); // for mobile robust
 
 // マージン
 const updateMargin = () => {
@@ -126,7 +128,8 @@ const updateMargin = () => {
     watermarkManager.setState({ margin: val / 100 });
 };
 wmMargin.addEventListener('input', updateMargin);
-wmMargin.addEventListener('change', updateMargin); // for mobile
+wmMargin.addEventListener('change', updateMargin);
+wmMargin.addEventListener('touchmove', (e) => { e.stopPropagation(); updateMargin(); }, { passive: true }); // for mobile robust
 
 // 位置変更
 wmPosItems.forEach(item => {
