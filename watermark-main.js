@@ -93,32 +93,40 @@ wmFontSelect.addEventListener('change', () => {
 });
 
 // カラー
-wmColorInput.addEventListener('input', () => {
+const updateColor = () => {
     const color = wmColorInput.value;
     wmColorValue.textContent = color;
     watermarkManager.setState({ color });
-});
+};
+wmColorInput.addEventListener('input', updateColor);
+wmColorInput.addEventListener('change', updateColor); // for some pickers
 
 // 透明度
-wmOpacity.addEventListener('input', () => {
+const updateOpacity = () => {
     const val = wmOpacity.value;
     wmOpacityValue.textContent = val + '%';
     watermarkManager.setState({ opacity: val / 100 });
-});
+};
+wmOpacity.addEventListener('input', updateOpacity);
+wmOpacity.addEventListener('change', updateOpacity); // for mobile
 
 // サイズ
-wmSize.addEventListener('input', () => {
+const updateSize = () => {
     const val = wmSize.value;
     wmSizeValue.textContent = val + '%';
     watermarkManager.setState({ scale: val / 100 });
-});
+};
+wmSize.addEventListener('input', updateSize);
+wmSize.addEventListener('change', updateSize); // for mobile
 
 // マージン
-wmMargin.addEventListener('input', () => {
+const updateMargin = () => {
     const val = wmMargin.value;
     wmMarginValue.textContent = val + '%';
     watermarkManager.setState({ margin: val / 100 });
-});
+};
+wmMargin.addEventListener('input', updateMargin);
+wmMargin.addEventListener('change', updateMargin); // for mobile
 
 // 位置変更
 wmPosItems.forEach(item => {
@@ -126,6 +134,20 @@ wmPosItems.forEach(item => {
         wmPosItems.forEach(i => i.classList.remove('active'));
         item.classList.add('active');
         watermarkManager.setState({ position: item.dataset.pos });
+    });
+});
+
+// 初期状態の同期 (特にカラーとスライダー)
+// ページロード時にHTMLのvalue属性とJSの状態を同期させる
+window.addEventListener('DOMContentLoaded', () => {
+    // カラーの初期化
+    watermarkManager.setState({
+        color: wmColorInput.value,
+        opacity: wmOpacity.value / 100,
+        scale: wmSize.value / 100,
+        margin: wmMargin.value / 100,
+        text: wmTextInput.value,
+        font: wmFontSelect.value
     });
 });
 
