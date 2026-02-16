@@ -20,6 +20,10 @@ export class CanvasManager {
         this.draw();
     }
 
+    setWatermarkManager(manager) {
+        this.watermarkManager = manager;
+    }
+
     _fitToContainer() {
         const containerRect = this.container.getBoundingClientRect();
         const cw = containerRect.width - 20; // padding
@@ -47,6 +51,11 @@ export class CanvasManager {
 
         // 画像描画
         this.ctx.drawImage(this.image, 0, 0, w, h);
+
+        // ウォーターマーク描画
+        if (this.watermarkManager) {
+            this.watermarkManager.render(this.ctx, w, h);
+        }
 
         // オーバーレイ描画（モード別コールバック）
         if (this.drawCallback) {

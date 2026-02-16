@@ -11,6 +11,7 @@ export default defineConfig({
             input: {
                 main: resolve(__dirname, 'index.html'),
                 'x-trick': resolve(__dirname, 'x-trick.html'),
+                watermark: resolve(__dirname, 'watermark.html'),
             },
         },
     },

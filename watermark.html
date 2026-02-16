@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Watermark Tool - 画像透かし入れツール</title>
+    <meta name="description" content="画像にテキストやロゴの透かし（ウォーターマーク）を簡単に入れることができるWebツール。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@400;700&family=Merriweather:wght@300;400;700&family=Montserrat:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+    <!-- ヘッダー -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                <h1>Watermark Tool</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="./index.html" class="nav-link">画像分割ツール</a>
+                <a href="./x-trick.html" class="nav-link">X画像メーカー</a>
+                <a href="./watermark.html" class="nav-link active">透かしツール</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="app-main">
+        <!-- アップロードエリア -->
+        <div id="upload-area" class="upload-area">
+            <div class="upload-content">
+                <div class="upload-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                </div>
+                <p class="upload-text">ここに画像をドラッグ＆ドロップ</p>
+                <p class="upload-subtext">または</p>
+                <button id="upload-btn" class="btn btn-primary">ファイルを選択</button>
+                <input type="file" id="file-input" accept="image/*" hidden />
+                <p class="upload-hint">PNG, JPG, WEBP, BMP に対応</p>
+            </div>
+        </div>
+
+        <!-- エディタエリア（画像ロード後に表示） -->
+        <div id="editor-area" class="editor-area hidden">
+            <!-- 画像情報バー -->
+            <div class="image-info-bar">
+                <div class="image-info">
+                    <span id="image-name" class="info-item">filename.png</span>
+                    <span id="image-size" class="info-item">0 x 0 px</span>
+                    <span id="image-filesize" class="info-item">0 KB</span>
+                </div>
+                <button id="change-image-btn" class="btn btn-ghost btn-sm">画像を変更</button>
+            </div>
+
+            <!-- エディタ本体 -->
+            <div class="editor-body">
+                <!-- 左: キャンバスエリア -->
+                <div class="canvas-container">
+                    <canvas id="preview-canvas"></canvas>
+                </div>
+
+                <!-- 右: 設定パネル -->
+                <div class="settings-panel">
+
+                    <!-- ウォーターマーク設定 -->
+                    <div class="watermark-section">
+                        <div class="section-header">
+                            <h3>ウォーターマーク設定</h3>
+                            <!-- 常にONの状態とするためスイッチは削除 -->
+                        </div>
+
+                        <div id="watermark-options" class="watermark-options">
+                            <!-- タイプ選択 -->
+                            <div class="setting-group">
+                                <label>タイプ</label>
+                                <div class="radio-group">
+                                    <label><input type="radio" name="wm-type" value="text" checked> テキスト</label>
+                                    <label><input type="radio" name="wm-type" value="image"> 画像</label>
+                                </div>
+                            </div>
+
+                            <!-- テキスト設定 -->
+                            <div id="wm-text-settings">
+                                <div class="setting-group">
+                                    <label>テキスト内容</label>
+                                    <input type="text" id="wm-text" value="Sample" placeholder="透かし文字を入力">
+                                </div>
+                                <div class="setting-group">
+                                    <label>フォント</label>
+                                    <select id="wm-font">
+                                        <option value="Arial, sans-serif">Arial (標準)</option>
+                                        <option value="'Inter', sans-serif">Inter (モダン)</option>
+                                        <option value="'Roboto', sans-serif">Roboto (Android標準)</option>
+                                        <option value="'Open Sans', sans-serif">Open Sans (読みやすい)</option>
+                                        <option value="'Lato', sans-serif">Lato (親しみやすい)</option>
+                                        <option value="'Montserrat', sans-serif">Montserrat (幾何学的)</option>
+                                        <option value="'Oswald', sans-serif">Oswald (力強い)</option>
+                                        <option value="'Playfair Display', serif">Playfair Display (上品)</option>
+                                        <option value="'Merriweather', serif">Merriweather (読みやすい明朝)</option>
+                                        <option value="'Dancing Script', cursive">Dancing Script (手書き風)</option>
+                                        <option value="'Courier New', monospace">Courier New (等幅)</option>
+                                    </select>
+                                </div>
+                                <div class="setting-group">
+                                    <label>色 / カラー</label>
+                                    <div class="color-picker-wrapper">
+                                        <input type="color" id="wm-color" value="#ffffff">
+                                        <span id="wm-color-value">#ffffff</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 画像設定 -->
+                            <div id="wm-image-settings" class="hidden">
+                                <div class="setting-group">
+                                    <label>画像ファイル</label>
+                                    <button id="wm-image-upload-btn" class="btn btn-secondary btn-sm">ファイルを選択</button>
+                                    <input type="file" id="wm-image-input" accept="image/*" hidden>
+                                    <span id="wm-image-name" class="file-name">未選択</span>
+                                </div>
+                            </div>
+
+                            <!-- 共通設定 -->
+                            <div class="setting-group">
+                                <label>透明度</label>
+                                <input type="range" id="wm-opacity" min="0" max="100" value="50">
+                                <span id="wm-opacity-value" class="range-value">50%</span>
+                            </div>
+
+                            <div class="setting-group">
+                                <label>サイズ (スケール)</label>
+                                <input type="range" id="wm-size" min="1" max="100" value="15">
+                                <span id="wm-size-value" class="range-value">15%</span>
+                            </div>
+
+                            <div class="setting-group">
+                                <label>位置</label>
+                                <div class="position-grid">
+                                    <div class="pos-item" data-pos="top-left"></div>
+                                    <div class="pos-item" data-pos="top-center"></div>
+                                    <div class="pos-item" data-pos="top-right"></div>
+                                    <div class="pos-item" data-pos="middle-left"></div>
+                                    <div class="pos-item active" data-pos="center"></div> <!-- center as default -->
+                                    <div class="pos-item" data-pos="middle-right"></div>
+                                    <div class="pos-item" data-pos="bottom-left"></div>
+                                    <div class="pos-item" data-pos="bottom-center"></div>
+                                    <div class="pos-item" data-pos="bottom-right"></div>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <label>マージン (余白)</label>
+                                <input type="range" id="wm-margin" min="0" max="20" value="2">
+                                <span id="wm-margin-value" class="range-value">2%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 出力設定 -->
+                    <div class="export-section">
+                        <h3>出力設定</h3>
+                        <div class="setting-group">
+                            <label>出力形式</label>
+                            <select id="output-format">
+                                <option value="png">PNG</option>
+                                <option value="jpeg">JPEG</option>
+                                <option value="webp">WebP</option>
+                            </select>
+                        </div>
+                        <div class="setting-group quality-group" id="quality-group" style="display:none;">
+                            <label>品質</label>
+                            <input type="range" id="output-quality" min="1" max="100" value="92" />
+                            <span id="quality-value" class="range-value">92%</span>
+                        </div>
+                    </div>
+
+                    <!-- アクションボタン -->
+                    <div class="action-buttons">
+                        <button id="download-btn" class="btn btn-primary btn-lg">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            画像を保存
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="/watermark-main.js"></script>
+</body>
+
+</html>

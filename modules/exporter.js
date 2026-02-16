@@ -52,6 +52,10 @@ export class Exporter {
         this.getRegions = fn;
     }
 
+    setWatermarkManager(manager) {
+        this.watermarkManager = manager;
+    }
+
     async split() {
         if (!this.image || !this.getRegions) return;
 
@@ -114,6 +118,11 @@ export class Exporter {
                 region.x, region.y, region.w, region.h,
                 0, 0, region.w, region.h
             );
+
+            // ウォーターマーク描画
+            if (this.watermarkManager) {
+                this.watermarkManager.render(ctx, region.w, region.h);
+            }
 
             canvas.toBlob((blob) => {
                 resolve(blob);
